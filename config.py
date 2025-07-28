@@ -1,4 +1,8 @@
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from settings/config.env
+load_dotenv('settings/config.env')
 
 # Telegram Bot Configuration
 BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')

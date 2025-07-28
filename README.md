@@ -29,13 +29,19 @@ pip install -r requirements.txt
 
 ### 3. Set Bot Token
 
-**Option A: Environment Variable (Recommended)**
+Create a file `settings/config.env` and add your bot token:
+
+```bash
+mkdir -p settings
+echo "TELEGRAM_BOT_TOKEN=your_bot_token_here" > settings/config.env
+```
+
+Replace `your_bot_token_here` with the actual token from BotFather.
+
+**Alternative: Environment Variable**
 ```bash
 export TELEGRAM_BOT_TOKEN="your_bot_token_here"
 ```
-
-**Option B: Edit config.py**
-Replace `YOUR_BOT_TOKEN_HERE` in `config.py` with your actual bot token.
 
 ### 4. Run the Bot
 

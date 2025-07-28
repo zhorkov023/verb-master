@@ -21,9 +21,12 @@ logger = logging.getLogger(__name__)
 def main():
     """Start the bot."""
     # Check if bot token is set
-    # if BOT_TOKEN == 'YOUR_BOT_TOKEN_HERE':
-    #     logger.error("Please set your Telegram bot token in the environment variable TELEGRAM_BOT_TOKEN or update config.py")
-    #     return
+    if not BOT_TOKEN:
+        logger.error("Bot token not found! Please check that:")
+        logger.error("1. The file 'settings/config.env' exists")
+        logger.error("2. It contains: TELEGRAM_BOT_TOKEN=your_bot_token_here")
+        logger.error("3. Install python-dotenv: pip install python-dotenv")
+        return
     
     # Create the Application
     application = Application.builder().token(BOT_TOKEN).build()
