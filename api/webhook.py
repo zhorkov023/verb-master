@@ -26,16 +26,33 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Create the Application instance
-application = Application.builder().token(BOT_TOKEN).build()
+# Global application instance
+application = None
+application_initialized = False
 
-# Add handlers
-application.add_handler(CommandHandler("start", start_command))
-application.add_handler(CommandHandler("help", help_command))
-application.add_handler(CommandHandler("practice", practice_command))
-application.add_handler(CallbackQueryHandler(handle_tense_group_selection))
-application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-application.add_error_handler(error_handler)
+async def get_application():
+    """Get or create initialized Application instance."""
+    global application, application_initialized
+    
+    if application is None:
+        # Create the Application instance
+        application = Application.builder().token(BOT_TOKEN).build()
+        
+        # Add handlers
+        application.add_handler(CommandHandler("start", start_command))
+        application.add_handler(CommandHandler("help", help_command))
+        application.add_handler(CommandHandler("practice", practice_command))
+        application.add_handler(CallbackQueryHandler(handle_tense_group_selection))
+        application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+        application.add_error_handler(error_handler)
+    
+    if not application_initialized:
+        # Initialize the application
+        await application.initialize()
+        application_initialized = True
+        logger.info("Application initialized successfully")
+    
+    return application
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -89,11 +106,14 @@ class handler(BaseHTTPRequestHandler):
     async def process_update(self, body):
         """Process Telegram update."""
         try:
+            # Get initialized application
+            app = await get_application()
+            
             # Create Update object from the webhook data
-            update = Update.de_json(body, application.bot)
+            update = Update.de_json(body, app.bot)
             
             # Process the update
-            await application.process_update(update)
+            await app.process_update(update)
             
         except Exception as e:
             logger.error(f"Error in process_update: {e}")
