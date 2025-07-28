@@ -1,8 +1,5 @@
 {
-  "builds": [
-    {
-      "src": "api/*.py",
-      "use": "@vercel/python"
-    }
+  "redirects": [
+    { "source": "/", "destination": "/api/webhook" }
   ]
 }
