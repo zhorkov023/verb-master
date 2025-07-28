@@ -4,6 +4,9 @@
 
 ### 1. Подготовка
 ```bash
+# Установите Node.js (если не установлен)
+brew install node
+
 # Установите Vercel CLI
 npm install -g vercel
 

@@ -8,23 +8,35 @@
 
 **Causes**:
 - Vercel can't find the webhook function
-- Incorrect function structure
+- Incorrect function structure or vercel.json configuration
 - Missing deployment
 
 **Solution**:
-1. **Redeploy to Vercel**:
+1. **Check vercel.json structure**:
+   ```json
+   {
+     "builds": [
+       {
+         "src": "api/*.py",
+         "use": "@vercel/python"
+       }
+     ]
+   }
+   ```
+
+2. **Check function structure**: Make sure `api/webhook.py` exports `handler` function
+
+3. **Redeploy to Vercel**:
    ```bash
    vercel --prod
    ```
 
-2. **Check function structure**: Make sure `api/webhook.py` uses `BaseHTTPRequestHandler`
-
-3. **Verify URL**: Webhook URL should be exactly:
+4. **Verify URL**: Webhook URL should be exactly:
    ```
    https://your-app-name.vercel.app/api/webhook
    ```
 
-4. **Test the endpoint**: Visit the URL in browser - should show:
+5. **Test the endpoint**: Visit the URL in browser - should show:
    ```json
    {"status": "Telegram Bot Webhook is running"}
    ```
