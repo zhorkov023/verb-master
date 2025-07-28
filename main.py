@@ -23,7 +23,7 @@ def main():
     # Check if bot token is set
     if not BOT_TOKEN:
         logger.error("Bot token not found! Please check that:")
-        logger.error("1. The file 'settings/config.env' exists")
+        logger.error("1. The file '.env' exists in the project root")
         logger.error("2. It contains: TELEGRAM_BOT_TOKEN=your_bot_token_here")
         logger.error("3. Install python-dotenv: pip install python-dotenv")
         return

@@ -1,8 +1,9 @@
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from settings/config.env
-load_dotenv('settings/config.env')
+# Load environment variables from .env file for local development
+# In production (Vercel), environment variables are set directly in dashboard
+load_dotenv()
 
 # Telegram Bot Configuration
 BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
