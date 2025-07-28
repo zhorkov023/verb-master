@@ -4,7 +4,10 @@
       "runtime": "python3.9"
     }
   },
-  "env": {
-    "TELEGRAM_BOT_TOKEN": "@telegram_bot_token"
-  }
+  "routes": [
+    {
+      "src": "/api/webhook",
+      "dest": "/api/webhook.py"
+    }
+  ]
 }

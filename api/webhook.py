@@ -1,3 +1,4 @@
+from http.server import BaseHTTPRequestHandler
 import json
 import logging
 import os
@@ -31,63 +32,51 @@ application.add_handler(CallbackQueryHandler(handle_tense_group_selection))
 application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 application.add_error_handler(error_handler)
 
-async def handler(request):
-    """Handle incoming webhook requests from Telegram."""
-    try:
-        # Get the request body
-        if request.method == "POST":
-            body = await request.json()
-            
-            # Create Update object from the webhook data
-            update = Update.de_json(body, application.bot)
-            
-            # Process the update
-            await application.process_update(update)
-            
-            return {
-                "statusCode": 200,
-                "body": json.dumps({"status": "ok"})
-            }
-        else:
-            return {
-                "statusCode": 405,
-                "body": json.dumps({"error": "Method not allowed"})
-            }
-            
-    except Exception as e:
-        logger.error(f"Error processing webhook: {e}")
-        return {
-            "statusCode": 500,
-            "body": json.dumps({"error": str(e)})
-        }
-
-# For Vercel
-def lambda_handler(event, context):
-    """AWS Lambda handler for Vercel."""
-    import asyncio
+class handler(BaseHTTPRequestHandler):
+    def do_POST(self):
+        """Handle POST requests from Telegram webhook."""
+        import asyncio
+        
+        async def process_update():
+            try:
+                # Get content length
+                content_length = int(self.headers['Content-Length'])
+                
+                # Read the request body
+                post_data = self.rfile.read(content_length)
+                body = json.loads(post_data.decode('utf-8'))
+                
+                # Create Update object from the webhook data
+                update = Update.de_json(body, application.bot)
+                
+                # Process the update
+                await application.process_update(update)
+                
+                # Send response
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "ok"}).encode())
+                
+            except Exception as e:
+                logger.error(f"Error processing webhook: {e}")
+                self.send_response(500)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": str(e)}).encode())
+        
+        # Run the async handler
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        
+        try:
+            loop.run_until_complete(process_update())
+        finally:
+            loop.close()
     
-    class Request:
-        def __init__(self, event):
-            self.method = event.get('httpMethod', 'GET')
-            self.body = event.get('body', '{}')
-            
-        async def json(self):
-            return json.loads(self.body)
-    
-    request = Request(event)
-    
-    # Run the async handler
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    
-    try:
-        result = loop.run_until_complete(handler(request))
-        return {
-            'statusCode': result['statusCode'],
-            'headers': {
-                'Content-Type': 'application/json',
-            },
-            'body': result['body']
-        }
-    finally:
-        loop.close()
+    def do_GET(self):
+        """Handle GET requests."""
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+        self.wfile.write(json.dumps({"status": "Telegram Bot Webhook is running"}).encode())
